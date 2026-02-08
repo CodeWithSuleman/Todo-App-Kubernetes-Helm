@@ -1,0 +1,23 @@
+apiVersion: v2
+name: todo-app
+description: A Helm chart for Todo Web Application with FastAPI backend and Next.js frontend
+
+type: application
+
+# Chart version - increment when making changes to the chart
+version: 1.0.0
+
+# Application version
+appVersion: "1.0.0"
+
+keywords:
+  - todo
+  - fastapi
+  - nextjs
+  - fullstack
+
+maintainers:
+  - name: Developer
+    email: developer@example.com
+
+home: https://github.com/your-repo/todo-app

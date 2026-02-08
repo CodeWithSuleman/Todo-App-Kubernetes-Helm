@@ -1,0 +1,299 @@
+# API Contracts: Frontend Application & User Experience
+
+## 1. Authentication Endpoints
+
+### 1.1 User Signup
+- **Endpoint**: `POST /api/auth/signup`
+- **Description**: Register a new user account
+- **Request**:
+  - Headers: `Content-Type: application/json`
+  - Body:
+    ```json
+    {
+      "name": "string",
+      "email": "string",
+      "password": "string"
+    }
+    ```
+- **Responses**:
+  - `200`: Success
+    ```json
+    {
+      "user": {
+        "id": "string",
+        "email": "string",
+        "name": "string"
+      },
+      "token": "string",
+      "expiresIn": "number"
+    }
+    ```
+  - `400`: Validation error
+  - `409`: User already exists
+
+### 1.2 User Login
+- **Endpoint**: `POST /api/auth/login`
+- **Description**: Authenticate user and return JWT token
+- **Request**:
+  - Headers: `Content-Type: application/json`
+  - Body:
+    ```json
+    {
+      "email": "string",
+      "password": "string"
+    }
+    ```
+- **Responses**:
+  - `200`: Success
+    ```json
+    {
+      "user": {
+        "id": "string",
+        "email": "string",
+        "name": "string"
+      },
+      "token": "string",
+      "expiresIn": "number"
+    }
+    ```
+  - `400`: Validation error
+  - `401`: Invalid credentials
+
+### 1.3 User Logout
+- **Endpoint**: `POST /api/auth/logout`
+- **Description**: Invalidate user session
+- **Request**:
+  - Headers: `Authorization: Bearer <token>`
+- **Responses**:
+  - `200`: Success
+    ```json
+    {
+      "message": "Successfully logged out"
+    }
+    ```
+  - `401`: Unauthorized
+
+### 1.4 Get Current User
+- **Endpoint**: `GET /api/auth/me`
+- **Description**: Retrieve current user information
+- **Request**:
+  - Headers: `Authorization: Bearer <token>`
+- **Responses**:
+  - `200`: Success
+    ```json
+    {
+      "user": {
+        "id": "string",
+        "email": "string",
+        "name": "string"
+      }
+    }
+    ```
+  - `401`: Unauthorized
+
+## 2. Task Management Endpoints
+
+### 2.1 Get User Tasks
+- **Endpoint**: `GET /api/tasks`
+- **Description**: Retrieve all tasks for the authenticated user
+- **Request**:
+  - Headers: `Authorization: Bearer <token>`
+  - Query Parameters:
+    - `page` (optional): page number for pagination
+    - `limit` (optional): number of tasks per page
+    - `filter` (optional): filter by status (all, active, completed)
+    - `sort` (optional): sort by field (date, priority)
+- **Responses**:
+  - `200`: Success
+    ```json
+    {
+      "tasks": [
+        {
+          "id": "string",
+          "title": "string",
+          "description": "string",
+          "completed": "boolean",
+          "userId": "string",
+          "createdAt": "string",
+          "updatedAt": "string",
+          "priority": "string",
+          "dueDate": "string"
+        }
+      ],
+      "total": "number",
+      "page": "number",
+      "limit": "number"
+    }
+    ```
+  - `401`: Unauthorized
+  - `403`: Forbidden (attempting to access another user's tasks)
+
+### 2.2 Create Task
+- **Endpoint**: `POST /api/tasks`
+- **Description**: Create a new task for the authenticated user
+- **Request**:
+  - Headers: `Authorization: Bearer <token>`, `Content-Type: application/json`
+  - Body:
+    ```json
+    {
+      "title": "string",
+      "description": "string",
+      "priority": "string",
+      "dueDate": "string"
+    }
+    ```
+- **Responses**:
+  - `201`: Created
+    ```json
+    {
+      "task": {
+        "id": "string",
+        "title": "string",
+        "description": "string",
+        "completed": "boolean",
+        "userId": "string",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "priority": "string",
+        "dueDate": "string"
+      }
+    }
+    ```
+  - `400`: Validation error
+  - `401`: Unauthorized
+  - `403`: Forbidden
+
+### 2.3 Get Task by ID
+- **Endpoint**: `GET /api/tasks/{id}`
+- **Description**: Retrieve a specific task by ID
+- **Request**:
+  - Headers: `Authorization: Bearer <token>`
+  - Path Parameter: `id` (task ID)
+- **Responses**:
+  - `200`: Success
+    ```json
+    {
+      "task": {
+        "id": "string",
+        "title": "string",
+        "description": "string",
+        "completed": "boolean",
+        "userId": "string",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "priority": "string",
+        "dueDate": "string"
+      }
+    }
+    ```
+  - `401`: Unauthorized
+  - `403`: Forbidden (task belongs to another user)
+  - `404`: Task not found
+
+### 2.4 Update Task
+- **Endpoint**: `PUT /api/tasks/{id}`
+- **Description**: Update an existing task
+- **Request**:
+  - Headers: `Authorization: Bearer <token>`, `Content-Type: application/json`
+  - Path Parameter: `id` (task ID)
+  - Body:
+    ```json
+    {
+      "title": "string",
+      "description": "string",
+      "completed": "boolean",
+      "priority": "string",
+      "dueDate": "string"
+    }
+    ```
+- **Responses**:
+  - `200`: Success
+    ```json
+    {
+      "task": {
+        "id": "string",
+        "title": "string",
+        "description": "string",
+        "completed": "boolean",
+        "userId": "string",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "priority": "string",
+        "dueDate": "string"
+      }
+    }
+    ```
+  - `400`: Validation error
+  - `401`: Unauthorized
+  - `403`: Forbidden (task belongs to another user)
+  - `404`: Task not found
+
+### 2.5 Toggle Task Completion
+- **Endpoint**: `PATCH /api/tasks/{id}/complete`
+- **Description**: Toggle the completion status of a task
+- **Request**:
+  - Headers: `Authorization: Bearer <token>`
+  - Path Parameter: `id` (task ID)
+  - Body:
+    ```json
+    {
+      "completed": "boolean"
+    }
+    ```
+- **Responses**:
+  - `200`: Success
+    ```json
+    {
+      "task": {
+        "id": "string",
+        "title": "string",
+        "description": "string",
+        "completed": "boolean",
+        "userId": "string",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "priority": "string",
+        "dueDate": "string"
+      }
+    }
+    ```
+  - `400`: Validation error
+  - `401`: Unauthorized
+  - `403`: Forbidden (task belongs to another user)
+  - `404`: Task not found
+
+### 2.6 Delete Task
+- **Endpoint**: `DELETE /api/tasks/{id}`
+- **Description**: Delete a task
+- **Request**:
+  - Headers: `Authorization: Bearer <token>`
+  - Path Parameter: `id` (task ID)
+- **Responses**:
+  - `200`: Success
+    ```json
+    {
+      "message": "Task deleted successfully"
+    }
+    ```
+  - `401`: Unauthorized
+  - `403`: Forbidden (task belongs to another user)
+  - `404`: Task not found
+
+## 3. Error Response Format
+
+### 3.1 Standard Error Response
+All error responses follow this format:
+```json
+{
+  "error": "string",
+  "code": "string",
+  "details": "object (optional)"
+}
+```
+
+### 3.2 Common Error Codes
+- `AUTH_REQUIRED`: 401 - Authentication required
+- `FORBIDDEN`: 403 - Access denied
+- `NOT_FOUND`: 404 - Resource not found
+- `VALIDATION_ERROR`: 400 - Validation failed
+- `INTERNAL_ERROR`: 500 - Internal server error

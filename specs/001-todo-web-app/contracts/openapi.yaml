@@ -1,0 +1,270 @@
+openapi: 3.0.3
+info:
+  title: Todo Web Application Backend API
+  description: Backend API for the Todo Web Application with JWT verification and todo management (Backend Foundation Only)
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Development server
+
+paths:
+  /api/v1/todos:
+    get:
+      summary: Get user's todos
+      description: Retrieve all todos belonging to the authenticated user (filtered by JWT user_id)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of user's todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create a new todo
+      description: Create a new todo item for the authenticated user (user_id from JWT)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  maxLength: 255
+                description:
+                  type: string
+                  maxLength: 1000
+      responses:
+        '200':
+          description: Todo created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/v1/todos/{todo_id}:
+    get:
+      summary: Get a specific todo
+      description: Retrieve a specific todo by ID for the authenticated user (filtered by JWT user_id)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: todo_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Todo identifier
+      responses:
+        '200':
+          description: Todo details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update a todo
+      description: Update a specific todo by ID for the authenticated user (filtered by JWT user_id)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: todo_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Todo identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 255
+                description:
+                  type: string
+                  maxLength: 1000
+                completed:
+                  type: boolean
+      responses:
+        '200':
+          description: Todo updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      summary: Delete a todo
+      description: Delete a specific todo by ID for the authenticated user (filtered by JWT user_id)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: todo_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Todo identifier
+      responses:
+        '200':
+          description: Todo deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/todos/{todo_id}/toggle-complete:
+    patch:
+      summary: Toggle todo completion status
+      description: Toggle the completion status of a specific todo (filtered by JWT user_id)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: todo_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Todo identifier
+      responses:
+        '200':
+          description: Todo completion status toggled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Check the health status of the backend service
+      responses:
+        '200':
+          description: Health check successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  app:
+                    type: string
+                    example: "Todo Web Application - Backend Foundation"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Todo:
+      type: object
+      required:
+        - id
+        - title
+        - completed
+        - user_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          description: Unique todo identifier (UUID)
+        title:
+          type: string
+          maxLength: 255
+          description: Task title
+        description:
+          type: string
+          maxLength: 1000
+          description: Optional task description
+        completed:
+          type: boolean
+          description: Completion status
+        user_id:
+          type: string
+          description: Owner user identifier (extracted from JWT 'sub')
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+  responses:
+    Unauthorized:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+                description: Error details
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+                description: Error details
+    UnprocessableEntity:
+      description: Invalid input data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+                description: Error details

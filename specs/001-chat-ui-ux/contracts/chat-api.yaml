@@ -1,0 +1,105 @@
+openapi: 3.0.0
+info:
+  title: Chat API for Todo Web Application
+  version: 1.0.0
+  description: API for chat-based todo management with AI assistant
+
+paths:
+  /api/v1/{user_id}/chat:
+    post:
+      summary: Send a message to the AI assistant for todo management
+      description: Process natural language requests for todo management
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the authenticated user
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successfully processed the chat message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid request (e.g., invalid user ID format)
+        '401':
+          description: Unauthorized - invalid or missing JWT token
+        '403':
+          description: Forbidden - user ID in path doesn't match authenticated user
+        '500':
+          description: Internal server error during chat processing
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The user's message to send to the AI
+          example: "Add a task to buy groceries"
+        conversation_id:
+          type: string
+          nullable: true
+          description: ID of the conversation to continue, or null for new conversation
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      required:
+        - message
+
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: The AI's response to the user's message
+          example: "I've added 'buy groceries' to your todo list."
+        conversation_id:
+          type: string
+          description: ID of the conversation this response belongs to
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        tool_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCallResult'
+          description: List of tools called by the AI during processing
+        message_id:
+          type: string
+          description: Unique ID for this response message
+          example: "123e4567-e89b-12d3-a456-426614174001"
+
+    ToolCallResult:
+      type: object
+      properties:
+        tool_name:
+          type: string
+          description: Name of the tool that was called
+          example: "create_todo"
+        parameters:
+          type: object
+          description: Parameters passed to the tool
+          example:
+            title: "buy groceries"
+            description: "Weekly grocery shopping"
+        result:
+          type: object
+          description: Result returned by the tool
+          example:
+            success: true
+            todo_id: "123e4567-e89b-12d3-a456-426614174002"

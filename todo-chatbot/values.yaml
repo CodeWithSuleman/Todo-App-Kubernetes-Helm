@@ -1,0 +1,169 @@
+# Default values for todo-app
+# This is a YAML-formatted file for local Minikube deployment
+
+# =============================================================================
+# BACKEND Configuration (FastAPI)
+# =============================================================================
+backend:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: todo-backend
+    tag: "latest"
+    pullPolicy: Never  # Use local images in Minikube
+
+  service:
+    type: NodePort
+    port: 8000
+    targetPort: 8000
+    nodePort: 30800  # Access backend at <minikube-ip>:30800
+
+  # Container port
+  containerPort: 8000
+
+  # Environment variables
+  env:
+    DATABASE_URL: ""  # Set via secret
+    JWT_SECRET_KEY: ""  # Set via secret
+    ACCESS_TOKEN_EXPIRE_MINUTES: "10080"
+    OPENAI_API_KEY: ""  # Set via secret
+    OPENAI_MODEL: "gpt-3.5-turbo"
+    ALLOWED_ORIGINS: '["http://localhost:3000","http://localhost:30300"]'
+    DEBUG: "false"
+
+  # Health check configuration
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+# =============================================================================
+# FRONTEND Configuration (Next.js)
+# =============================================================================
+frontend:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: todo-frontend
+    tag: "latest"
+    pullPolicy: Never  # Use local images in Minikube
+
+  service:
+    type: NodePort
+    port: 3000
+    targetPort: 3000
+    nodePort: 30300  # Access frontend at <minikube-ip>:30300
+
+  # Container port
+  containerPort: 3000
+
+  # Environment variables
+  env:
+    NEXT_PUBLIC_API_BASE_URL: "http://localhost:30800"  # Points to backend NodePort
+    NODE_ENV: "production"
+
+  # Health check configuration
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+# =============================================================================
+# SECRETS Configuration
+# =============================================================================
+secrets:
+  # Base64 encoded values - update these with your actual secrets
+  # To encode: echo -n 'your-value' | base64
+  databaseUrl: ""  # Base64 encoded DATABASE_URL
+  jwtSecretKey: ""  # Base64 encoded JWT_SECRET_KEY
+  openaiApiKey: ""  # Base64 encoded OPENAI_API_KEY
+
+# =============================================================================
+# Common Configuration
+# =============================================================================
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+# Ingress - disabled for local development, use NodePort instead
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: todo.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# HTTPRoute - disabled for local development
+httpRoute:
+  enabled: false
+
+# Autoscaling - disabled for local development
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -1,0 +1,282 @@
+# MCP Tool Definitions for Todo Management
+
+# Tool: add_task
+# Purpose: Add a new task to the user's todo list
+# Input schema:
+#   - title: string (required) - The title of the task
+#   - description: string (optional) - A detailed description of the task
+# Output schema:
+#   - task_id: string (uuid) - The ID of the created task
+#   - title: string - The title of the created task
+#   - status: string - The status of the task (pending)
+#   - created_at: string (datetime) - When the task was created
+
+add_task:
+  name: "add_task"
+  description: "Add a new task to the user's todo list"
+  input_schema:
+    type: object
+    required:
+      - title
+    properties:
+      title:
+        type: string
+        description: "The title of the task to add"
+        example: "Buy groceries"
+      description:
+        type: string
+        description: "A detailed description of the task"
+        example: "Purchase milk, bread, and eggs"
+  output_schema:
+    type: object
+    required:
+      - task_id
+      - title
+      - status
+      - created_at
+    properties:
+      task_id:
+        type: string
+        format: uuid
+        description: "The ID of the created task"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+      title:
+        type: string
+        description: "The title of the created task"
+        example: "Buy groceries"
+      description:
+        type: string
+        description: "The description of the created task"
+        example: "Purchase milk, bread, and eggs"
+      status:
+        type: string
+        enum: ["pending", "in_progress", "completed"]
+        description: "The current status of the task"
+        example: "pending"
+      created_at:
+        type: string
+        format: date-time
+        description: "When the task was created"
+        example: "2023-10-05T14:48:00.000Z"
+
+# Tool: list_tasks
+# Purpose: Retrieve all tasks for the current user
+# Input schema: {}
+# Output schema:
+#   - tasks: array of task objects
+#     - task_id: string (uuid) - The ID of the task
+#     - title: string - The title of the task
+#     - description: string - A detailed description of the task
+#     - status: string - The status of the task
+#     - created_at: string (datetime) - When the task was created
+#     - updated_at: string (datetime) - When the task was last updated
+
+list_tasks:
+  name: "list_tasks"
+  description: "Retrieve all tasks for the current user"
+  input_schema:
+    type: object
+    properties: {}
+  output_schema:
+    type: object
+    required:
+      - tasks
+    properties:
+      tasks:
+        type: array
+        items:
+          type: object
+          required:
+            - task_id
+            - title
+            - status
+            - created_at
+          properties:
+            task_id:
+              type: string
+              format: uuid
+              description: "The ID of the task"
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            title:
+              type: string
+              description: "The title of the task"
+              example: "Buy groceries"
+            description:
+              type: string
+              description: "The description of the task"
+              example: "Purchase milk, bread, and eggs"
+            status:
+              type: string
+              enum: ["pending", "in_progress", "completed"]
+              description: "The current status of the task"
+              example: "pending"
+            created_at:
+              type: string
+              format: date-time
+              description: "When the task was created"
+              example: "2023-10-05T14:48:00.000Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: "When the task was last updated"
+              example: "2023-10-05T14:48:00.000Z"
+
+# Tool: update_task
+# Purpose: Update an existing task's properties
+# Input schema:
+#   - task_id: string (uuid, required) - The ID of the task to update
+#   - title: string (optional) - The new title of the task
+#   - description: string (optional) - The new description of the task
+#   - status: string (optional) - The new status of the task
+# Output schema:
+#   - task_id: string (uuid) - The ID of the updated task
+#   - title: string - The updated title of the task
+#   - description: string - The updated description of the task
+#   - status: string - The updated status of the task
+#   - updated_at: string (datetime) - When the task was last updated
+
+update_task:
+  name: "update_task"
+  description: "Update an existing task's properties"
+  input_schema:
+    type: object
+    required:
+      - task_id
+    properties:
+      task_id:
+        type: string
+        format: uuid
+        description: "The ID of the task to update"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+      title:
+        type: string
+        description: "The new title of the task"
+        example: "Buy weekly groceries"
+      description:
+        type: string
+        description: "The new description of the task"
+        example: "Purchase milk, bread, eggs, and vegetables"
+      status:
+        type: string
+        enum: ["pending", "in_progress", "completed"]
+        description: "The new status of the task"
+        example: "in_progress"
+  output_schema:
+    type: object
+    required:
+      - task_id
+      - title
+      - status
+      - updated_at
+    properties:
+      task_id:
+        type: string
+        format: uuid
+        description: "The ID of the updated task"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+      title:
+        type: string
+        description: "The updated title of the task"
+        example: "Buy weekly groceries"
+      description:
+        type: string
+        description: "The updated description of the task"
+        example: "Purchase milk, bread, eggs, and vegetables"
+      status:
+        type: string
+        enum: ["pending", "in_progress", "completed"]
+        description: "The updated status of the task"
+        example: "in_progress"
+      updated_at:
+        type: string
+        format: date-time
+        description: "When the task was last updated"
+        example: "2023-10-05T15:30:00.000Z"
+
+# Tool: complete_task
+# Purpose: Mark a task as completed
+# Input schema:
+#   - task_id: string (uuid, required) - The ID of the task to complete
+# Output schema:
+#   - task_id: string (uuid) - The ID of the completed task
+#   - title: string - The title of the completed task
+#   - status: string - The status of the task (completed)
+#   - completed_at: string (datetime) - When the task was completed
+
+complete_task:
+  name: "complete_task"
+  description: "Mark a task as completed"
+  input_schema:
+    type: object
+    required:
+      - task_id
+    properties:
+      task_id:
+        type: string
+        format: uuid
+        description: "The ID of the task to complete"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+  output_schema:
+    type: object
+    required:
+      - task_id
+      - title
+      - status
+      - completed_at
+    properties:
+      task_id:
+        type: string
+        format: uuid
+        description: "The ID of the completed task"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+      title:
+        type: string
+        description: "The title of the completed task"
+        example: "Buy groceries"
+      status:
+        type: string
+        enum: ["completed"]
+        description: "The status of the task (always completed)"
+        example: "completed"
+      completed_at:
+        type: string
+        format: date-time
+        description: "When the task was completed"
+        example: "2023-10-05T16:00:00.000Z"
+
+# Tool: delete_task
+# Purpose: Delete a task from the user's todo list
+# Input schema:
+#   - task_id: string (uuid, required) - The ID of the task to delete
+# Output schema:
+#   - task_id: string (uuid) - The ID of the deleted task
+#   - deleted: boolean - Whether the task was successfully deleted
+
+delete_task:
+  name: "delete_task"
+  description: "Delete a task from the user's todo list"
+  input_schema:
+    type: object
+    required:
+      - task_id
+    properties:
+      task_id:
+        type: string
+        format: uuid
+        description: "The ID of the task to delete"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+  output_schema:
+    type: object
+    required:
+      - task_id
+      - deleted
+    properties:
+      task_id:
+        type: string
+        format: uuid
+        description: "The ID of the deleted task"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+      deleted:
+        type: boolean
+        description: "Whether the task was successfully deleted"
+        example: true

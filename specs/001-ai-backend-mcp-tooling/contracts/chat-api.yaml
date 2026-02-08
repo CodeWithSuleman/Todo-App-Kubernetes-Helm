@@ -1,0 +1,120 @@
+openapi: 3.0.0
+info:
+  title: AI Chat API
+  description: API for AI-powered natural language todo management
+  version: 1.0.0
+
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Process natural language requests for todo management
+      description: |
+        Handles natural language input from users and processes it through an AI agent
+        that selects appropriate tools for todo management operations.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user making the request
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: The natural language message from the user
+                  example: "Add a task to buy groceries"
+                conversation_id:
+                  type: string
+                  format: uuid
+                  description: Optional conversation ID to continue an existing conversation
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Successful response from the AI assistant
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - response
+                  - conversation_id
+                  - tool_calls
+                properties:
+                  response:
+                    type: string
+                    description: The AI assistant's response to the user
+                    example: "I've added the task 'buy groceries' to your list."
+                  conversation_id:
+                    type: string
+                    format: uuid
+                    description: The ID of the conversation
+                    example: "123e4567-e89b-12d3-a456-426614174000"
+                  tool_calls:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tool_name:
+                          type: string
+                          description: The name of the tool that was called
+                          example: "add_task"
+                        parameters:
+                          type: object
+                          description: The parameters passed to the tool
+                        result:
+                          type: object
+                          description: The result of the tool call
+                  message_id:
+                    type: string
+                    format: uuid
+                    description: The ID of the message created
+                    example: "123e4567-e89b-12d3-a456-426614174001"
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - User does not have access to the specified user_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Description of the error
+          example: "Invalid JWT token"
+        code:
+          type: string
+          description: Error code
+          example: "INVALID_JWT"

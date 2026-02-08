@@ -1,0 +1,112 @@
+🚀 Todo Application has been deployed!
+
+=============================================================================
+📋 DEPLOYMENT SUMMARY
+=============================================================================
+
+{{- if .Values.backend.enabled }}
+BACKEND (FastAPI):
+  - Deployment: {{ include "todo-app.backend.fullname" . }}
+  - Service: {{ include "todo-app.backend.fullname" . }}
+  - Port: {{ .Values.backend.service.port }}
+  {{- if eq .Values.backend.service.type "NodePort" }}
+  - NodePort: {{ .Values.backend.service.nodePort }}
+  {{- end }}
+{{- end }}
+
+{{- if .Values.frontend.enabled }}
+FRONTEND (Next.js):
+  - Deployment: {{ include "todo-app.frontend.fullname" . }}
+  - Service: {{ include "todo-app.frontend.fullname" . }}
+  - Port: {{ .Values.frontend.service.port }}
+  {{- if eq .Values.frontend.service.type "NodePort" }}
+  - NodePort: {{ .Values.frontend.service.nodePort }}
+  {{- end }}
+{{- end }}
+
+=============================================================================
+🔗 ACCESS YOUR APPLICATION
+=============================================================================
+
+{{- if eq .Values.backend.service.type "NodePort" }}
+
+For Minikube, run these commands to get the URLs:
+
+  # Get Minikube IP
+  export MINIKUBE_IP=$(minikube ip)
+
+  {{- if .Values.frontend.enabled }}
+  # Frontend URL
+  echo "Frontend: http://$MINIKUBE_IP:{{ .Values.frontend.service.nodePort }}"
+  {{- end }}
+
+  {{- if .Values.backend.enabled }}
+  # Backend API URL
+  echo "Backend API: http://$MINIKUBE_IP:{{ .Values.backend.service.nodePort }}"
+  echo "API Docs: http://$MINIKUBE_IP:{{ .Values.backend.service.nodePort }}/docs"
+  echo "Health Check: http://$MINIKUBE_IP:{{ .Values.backend.service.nodePort }}/health"
+  {{- end }}
+
+  # Or use minikube service command:
+  {{- if .Values.frontend.enabled }}
+  minikube service {{ include "todo-app.frontend.fullname" . }} --url
+  {{- end }}
+  {{- if .Values.backend.enabled }}
+  minikube service {{ include "todo-app.backend.fullname" . }} --url
+  {{- end }}
+
+{{- else if eq .Values.backend.service.type "ClusterIP" }}
+
+Using port-forward (ClusterIP):
+
+  {{- if .Values.frontend.enabled }}
+  # Frontend
+  kubectl port-forward svc/{{ include "todo-app.frontend.fullname" . }} 3000:{{ .Values.frontend.service.port }}
+  {{- end }}
+
+  {{- if .Values.backend.enabled }}
+  # Backend
+  kubectl port-forward svc/{{ include "todo-app.backend.fullname" . }} 8000:{{ .Values.backend.service.port }}
+  {{- end }}
+
+{{- end }}
+
+=============================================================================
+📊 USEFUL COMMANDS
+=============================================================================
+
+# Check pod status
+kubectl get pods -l "app.kubernetes.io/instance={{ .Release.Name }}"
+
+# Check services
+kubectl get svc -l "app.kubernetes.io/instance={{ .Release.Name }}"
+
+# View backend logs
+kubectl logs -l "app.kubernetes.io/component=backend" -f
+
+# View frontend logs
+kubectl logs -l "app.kubernetes.io/component=frontend" -f
+
+# Describe deployments
+kubectl describe deployment {{ include "todo-app.backend.fullname" . }}
+kubectl describe deployment {{ include "todo-app.frontend.fullname" . }}
+
+=============================================================================
+⚠️  IMPORTANT NOTES
+=============================================================================
+
+1. Make sure you have loaded the Docker images into Minikube:
+
+   # If using local images, load them into Minikube:
+   minikube image load todo-backend:latest
+   minikube image load todo-frontend:latest
+
+2. Secrets must be configured with valid values:
+   - DATABASE_URL: Your Neon PostgreSQL connection string
+   - JWT_SECRET_KEY: A secure random string (min 32 chars)
+   - OPENAI_API_KEY: Your OpenAI API key
+
+3. To update secrets, use:
+   helm upgrade {{ .Release.Name }} . --set secrets.databaseUrl="your-db-url" ...
+
+=============================================================================

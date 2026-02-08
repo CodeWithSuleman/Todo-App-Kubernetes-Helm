@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.specify/scripts/bash/create-phr.sh --title \"todo-web-app-implementation\" --stage green --feature \"todo-web-app\" --json)",
+      "Bash(poetry check)",
+      "Bash(python -c \"from src.main import app; print\\(''App imported successfully''\\)\")",
+      "Bash(python -m py_compile src/config.py src/database.py src/middleware.py src/models/todo.py src/services/todo_service.py src/schemas/todo.py)",
+      "Bash(python -c \"from src.main import app; print\\(''Import successful''\\)\")",
+      "Bash(pip install slowapi)",
+      "Bash(pip install sqlmodel fastapi uvicorn python-jose[rfc7523] passlib[bcrypt] psycopg2-binary)",
+      "Bash(python test_config.py)",
+      "Bash(copy ...env src)",
+      "Bash(python test_actual_config.py)",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, ''.''\\); from main import app; print\\(''Import successful''\\)\")",
+      "Bash(python test_startup.py)",
+      "Bash(python test_routes.py)",
+      "Bash(python test_database.py)",
+      "Bash(python final_validation.py)",
+      "Bash(poetry install)",
+      "Bash(pip install fastapi uvicorn sqlmodel psycopg2-binary python-multipart python-jose passlib better-exceptions pydantic typing-extensions neon slowapi)",
+      "Bash(python -c \"from main import app; print\\(''Import successful''\\)\")",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, ''./src''\\); from main import app; print\\(''Import successful''\\)\")",
+      "Bash(PYTHONPATH=./src python -c \"from main import app; print\\(''Import successful''\\)\")",
+      "Bash(python test_db_connection.py)",
+      "Bash(PYTHONPATH=./src python -c \"\nfrom sqlalchemy import inspect\nfrom database import engine\ninspector = inspect\\(engine\\)\ntables = inspector.get_table_names\\(\\)\nprint\\(''Tables in database:'', tables\\)\n\")",
+      "Bash(PYTHONPATH=./src python -c \"\nimport sys\nfrom dotenv import load_dotenv\nload_dotenv\\(''./src/.env''\\)\nsys.path.insert\\(0, ''./src''\\)\n\nfrom config import settings\nfrom sqlmodel import SQLModel, Field, Session, create_engine, select\nimport uuid\nfrom datetime import datetime\n\n# Define User model\nclass User\\(SQLModel, table=True\\):\n    __tablename__ = ''users''\n    id: str = Field\\(default_factory=lambda: str\\(uuid.uuid4\\(\\)\\), primary_key=True\\)\n    name: str = Field\\(max_length=255\\)\n    email: str = Field\\(unique=True, max_length=255\\)\n    created_at: datetime = Field\\(default_factory=datetime.utcnow\\)\n\n# Connect to database\ndb_url = settings.NEON_DATABASE_URL or settings.DATABASE_URL\nprint\\(f''Database URL: {db_url}''\\)\n\nif db_url and db_url.startswith\\(''postgresql''\\):\n    engine = create_engine\\(db_url, echo=True\\)\n    \n    # Verify the user exists\n    with Session\\(engine\\) as session:\n        from sqlalchemy import text\n        result = session.exec\\(select\\(User\\).where\\(User.name == ''Suleman''\\)\\).first\\(\\)\n        \n        if result:\n            print\\(f''[SUCCESS] User Suleman exists in database!''\\)\n            print\\(f''ID: {result.id}''\\)\n            print\\(f''Name: {result.name}''\\)\n            print\\(f''Email: {result.email}''\\)\n            print\\(f''Created: {result.created_at}''\\)\n        else:\n            print\\(''[ERROR] User Suleman not found in database''\\)\nelse:\n    print\\(''Not using PostgreSQL database''\\)\n\")",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/auth/signup -H \"Content-Type: application/json\" -d '{\"\"name\"\": \"\"Test User 3\"\", \"\"email\"\": \"\"test3@example.com\"\", \"\"password\"\": \"\"password123\"\"}')",
+      "Bash(npm run dev)"
+    ]
+  }
+}
