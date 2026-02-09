@@ -114,7 +114,7 @@ kubectl port-forward svc/todo-app-backend 8000:8000
 
 ## 🎥 Demo & Submission
 
-- **Walkthrough Video:**  [https://notebooklm.google.com/notebook/67e60409-d229-4175-8606-b092b840e0d3?artifactId=14c8270c-7e93-488d-acfd-c74948473a0a] (Demo)
+- **Walkthrough Video:**  [Demo](https://notebooklm.google.com/notebook/67e60409-d229-4175-8606-b092b840e0d3?artifactId=14c8270c-7e93-488d-acfd-c74948473a0a))
 ---
 
 ## 👨‍💻 Developed By
