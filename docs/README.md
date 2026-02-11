@@ -119,5 +119,5 @@ kubectl port-forward svc/todo-app-backend 8000:8000
 
 ## 👨‍💻 Developed By
 
-**[Muhammad Suleman]**  
+**Muhammad Suleman**  
 GIAIC – 4th Quarter
